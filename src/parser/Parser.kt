@@ -10,7 +10,7 @@ class Parser(line: String) {
             skipSpaces()
         }
 
-        private fun skipSpaces() {
+        fun skipSpaces() {
             while (line.getOrNull(index) in arrayOf(' ', '\t', '\n', '\r')) {
                 index++
             }
@@ -20,15 +20,15 @@ class Parser(line: String) {
             return line.getOrNull(index)
         }
 
-        fun step(): State {
+        private fun step(skip: Boolean = true): State {
             if (index < line.length) {
-                index++.also { skipSpaces() }
+                index++.also { if (skip) skipSpaces() }
             }
             return this
         }
 
-        fun getAndStep(): Char? {
-            return get().also { step() }
+        fun getAndStep(skip: Boolean = true): Char? {
+            return get().also { step(skip) }
         }
 
         fun assertAndStep(c: Char): State? {

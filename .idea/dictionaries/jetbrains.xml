@@ -3,6 +3,8 @@
     <words>
       <w>kotlinc</w>
       <w>mainclass</w>
+      <w>redex</w>
+      <w>reductor</w>
       <w>unificator</w>
     </words>
   </dictionary>
