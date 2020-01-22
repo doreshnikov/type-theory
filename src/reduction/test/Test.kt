@@ -45,12 +45,14 @@ fun main() {
         "(\\a. b) (\\a. b) (\\a. b)"
     )
 
-    for (line in tests) {
-        val parsed = Parser(line).parse()!!
-        println(parsed)
-        Reductor(parsed).process(100, 1)
-
-        println()
+    System.out.bufferedWriter().use { out ->
+        for (line in tests) {
+            val parsed = Parser(line).parse()!!
+            out.write(parsed.toString())
+            out.write("\n")
+            Reductor(parsed).process(100, 1, out)
+            out.write("\n")
+        }
     }
 
 }

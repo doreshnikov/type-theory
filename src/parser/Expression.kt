@@ -7,6 +7,10 @@ interface Expression {
             val ret = Application.parse(state) ?: return Abstraction.parse(state) ?: return null
             return Application(ret, Abstraction.parse(state) ?: return ret)
         }
+
+        fun areEqual(left: Expression, right: Expression): Boolean {
+            return (left.hashCode() == right.hashCode() && left.toString() == right.toString())
+        }
     }
 
     fun clone(): Expression
@@ -39,8 +43,14 @@ interface Expression {
             }
         }
 
+        private val hash = name.hashCode()
+
         override fun clone(): Variable {
             return this
+        }
+
+        override fun hashCode(): Int {
+            return hash
         }
 
         override fun toString(): String {
@@ -73,12 +83,19 @@ interface Expression {
             }
         }
 
+        private val data get() = if (right is REDUCED) left.toString() else "($left $right)"
+        private val hash get() = data.hashCode()
+
         override fun clone(): Application {
             return Application(left.clone(), right.clone())
         }
 
+        override fun hashCode(): Int {
+            return hash
+        }
+
         override fun toString(): String {
-            return if (right is REDUCED) left.toString() else "($left $right)"
+            return data
         }
 
     }
@@ -96,12 +113,19 @@ interface Expression {
             }
         }
 
+        private val data get() = "(\\${left}. $right)"
+        private val hash get() = data.hashCode()
+
         override fun clone(): Abstraction {
             return Abstraction(left.clone(), right.clone())
         }
 
+        override fun hashCode(): Int {
+            return hash
+        }
+
         override fun toString(): String {
-            return "(\\${left}. $right)"
+            return data
         }
 
     }

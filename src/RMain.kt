@@ -3,14 +3,17 @@ import reduction.Reductor
 
 fun main() {
 
-    readLine()!!.split(" ").map { it.toInt() }.toList().let {
+    readLine()!!.split(" ").map { it.toInt() }.toList().let { it ->
         val n = it[0]
         val k = it[1]
         val line = readLine()
         val expression = Parser(line!!).parse()!!
 
-        println(expression)
-        Reductor(expression).process(n, k)
+        System.out.bufferedWriter().use { out ->
+            out.write(expression.toString())
+            out.write("\n")
+            Reductor(expression).process(n, k, out)
+        }
     }
 
 }

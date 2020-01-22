@@ -1,6 +1,7 @@
 package reduction
 
 import parser.Expression
+import java.io.BufferedWriter
 
 class Reductor(private var expression: Expression) {
 
@@ -16,23 +17,49 @@ class Reductor(private var expression: Expression) {
     }
 
     private fun replace(node: Expression, variable: Expression.Variable, sub: Expression): Expression {
-        when (node) {
+        return when (node) {
             is Expression.Application -> {
-                node.left = replace(node.left, variable, sub)
-                node.right = replace(node.right, variable, sub)
+                Expression.Application(
+                    replace(node.left, variable, sub),
+                    replace(node.right, variable, sub)
+                )
             }
             is Expression.Abstraction -> {
                 val rename = Expression.Variable()
-                node.right = replace(node.right, node.left, rename)
-                node.left = rename
-                node.right = replace(node.right, variable, sub)
+                val right = replace(node.right, node.left, rename)
+                Expression.Abstraction(
+                    rename,
+                    replace(right, variable, sub)
+                )
             }
             is Expression.Variable -> {
-                return if (node == variable) sub
+                if (node == variable) sub
                 else node
             }
+            else -> node
         }
-        return node
+    }
+
+    private fun normalize(node: Expression): Expression {
+        return when (node) {
+            is Expression.Application -> {
+                if (node.right is Expression.REDUCED) {
+                    normalize(node.left)
+                } else {
+                    Expression.Application(
+                        normalize(node.left),
+                        normalize(node.right)
+                    )
+                }
+            }
+            is Expression.Abstraction -> {
+                Expression.Abstraction(
+                    node.left,
+                    normalize(node.right)
+                )
+            }
+            else -> node
+        }
     }
 
     private fun reduce(): Boolean {
@@ -42,14 +69,16 @@ class Reductor(private var expression: Expression) {
 
         redex.left = replace((redex.left as Expression.Abstraction).right, variable, sub)
         redex.right = Expression.REDUCED
+        expression = normalize(expression)
         return true
     }
 
-    fun process(n: Int, k: Int) {
+    fun process(n: Int, k: Int, out: BufferedWriter) {
         for (i in 1..n) {
             if (!reduce()) break
             if (i % k == 0) {
-                println(expression)
+                out.write(expression.toString())
+                out.write("\n")
             }
         }
     }
