@@ -4,6 +4,7 @@ import parser.Parser
 import reduction.Reductor
 import types.TypeResolver
 import types.Type
+import java.io.File
 
 fun main() {
 
@@ -45,7 +46,7 @@ fun main() {
         "(\\a. b) (\\a. b) (\\a. b)"
     )
 
-    System.out.bufferedWriter().use { out ->
+    File("fuck").bufferedWriter().use { out ->
         for (line in tests) {
             val parsed = Parser(line).parse()!!
             out.write(parsed.toString())

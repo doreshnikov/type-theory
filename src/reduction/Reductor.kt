@@ -41,31 +41,32 @@ class Reductor(private var expression: Expression) {
     }
 
     private fun normalize(node: Expression): Expression {
-        return when (node) {
+        when (node) {
             is Expression.Application -> {
                 if (node.right is Expression.REDUCED) {
-                    normalize(node.left)
+                    return normalize(node.left)
                 } else {
-                    Expression.Application(
-                        normalize(node.left),
-                        normalize(node.right)
-                    )
+                    val left = normalize(node.left)
+                    val right = normalize(node.right)
+                    if (left != node.left || right != node.right) {
+                        return Expression.Application(left, right)
+                    }
                 }
             }
             is Expression.Abstraction -> {
-                Expression.Abstraction(
-                    node.left,
-                    normalize(node.right)
-                )
+                val right = normalize(node.right)
+                if (right != node.right) {
+                    return Expression.Abstraction(node.left, right)
+                }
             }
-            else -> node
         }
+        return node
     }
 
     private fun reduce(): Boolean {
         val redex = leftmostRedex(expression) ?: return false
         val variable = (redex.left as Expression.Abstraction).left
-        val sub = redex.right.clone()
+        val sub = redex.right
 
         redex.left = replace((redex.left as Expression.Abstraction).right, variable, sub)
         redex.right = Expression.REDUCED
